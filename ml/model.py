@@ -141,3 +141,18 @@ class LuNet(LightningModule):
         data_loader = DataLoader(UNSWNB15Dataset(self.val_data_path), batch_size=256, shuffle=True, num_workers=12)
 
         return data_loader
+
+    def training_step(self, batch, batch_idx):
+        x = batch['feature'].float()
+        y_hat = self(x)
+
+        if self.out_dim == 2:  # binary classification
+            y = batch['label'].long()
+            loss = {'loss': F.binary_cross_entropy(y_hat, y)}
+        else:
+            y = batch['attack_cat'].long()
+            loss = {'loss': F.cross_entropy(y_hat, y)}
+
+        if (batch_idx % 50) == 0:
+            self.logger.log_metrics(loss, step=batch_idx)
+        return loss
