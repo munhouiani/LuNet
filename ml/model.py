@@ -163,10 +163,10 @@ class LuNet(LightningModule):
 
         if self.out_dim == 2:  # binary classification
             y = batch['label'].long()
-            loss = {'loss': F.binary_cross_entropy(y_hat, y)}
+            loss = {'val_loss': F.binary_cross_entropy(y_hat, y)}
         else:
             y = batch['attack_cat'].long()
-            loss = {'loss': F.cross_entropy(y_hat, y)}
+            loss = {'val_loss': F.cross_entropy(y_hat, y)}
 
         if (batch_idx % 50) == 0:
             self.logger.log_metrics(loss, step=batch_idx)
