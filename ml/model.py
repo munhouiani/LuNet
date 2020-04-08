@@ -171,3 +171,6 @@ class LuNet(LightningModule):
         if (batch_idx % 50) == 0:
             self.logger.log_metrics(loss, step=batch_idx)
         return loss
+
+    def configure_optimizers(self):
+        return torch.optim.RMSprop(self.parameters(), lr=0.001)
