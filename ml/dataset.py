@@ -14,6 +14,9 @@ class UNSWNB15Dataset(Dataset):
         label = self.data[idx, -1]
         feature = self.data[idx, 0:-2]
 
+        # expand dims for matching batch & feature vector
+        feature = np.expand_dims(feature, axis=0)
+
         return {
             'feature': feature,
             'attack_cat': attack_cat,
