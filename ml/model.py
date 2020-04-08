@@ -138,7 +138,7 @@ class LuNet(LightningModule):
         return data_loader
 
     def val_dataloader(self):
-        data_loader = DataLoader(UNSWNB15Dataset(self.val_data_path), batch_size=256, shuffle=True, num_workers=12)
+        data_loader = DataLoader(UNSWNB15Dataset(self.val_data_path), batch_size=16, shuffle=True, num_workers=12)
 
         return data_loader
 
