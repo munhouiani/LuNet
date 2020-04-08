@@ -4,6 +4,9 @@ import torch
 from pytorch_lightning import LightningModule
 from torch import nn as nn
 from torch.nn import functional as F
+from torch.utils.data import DataLoader
+
+from ml.dataset import UNSWNB15Dataset
 
 
 class LuNetBlock(LightningModule):
@@ -55,6 +58,12 @@ class LuNetBlock(LightningModule):
 class LuNet(LightningModule):
     def __init__(self, hparams):
         super().__init__()
+
+        # config
+        self.train_data_path = hparams.train_data_path
+        self.val_data_path = hparams.val_data_path
+        self.out_dim = hparams.out
+
         hparams_lu_block_1 = Namespace(**{
             'input_dim': hparams.input_dim,
             'conv_out': hparams.c1_out,
@@ -98,10 +107,10 @@ class LuNet(LightningModule):
         dummy_x = self.avg_pool(dummy_x)
         self.drop_out = nn.Dropout(p=0.5)
 
-        if hparams.out == 2:  # binary classification
+        if self.out_dim == 2:  # binary classification
             out_dim = 1
         else:
-            out_dim = hparams.out
+            out_dim = self.out_dim
         self.out = nn.Linear(
             in_features=dummy_x.shape[1] * dummy_x.shape[2],
             out_features=out_dim
@@ -122,3 +131,13 @@ class LuNet(LightningModule):
         x = self.out(x)
 
         return x
+
+    def train_dataloader(self):
+        data_loader = DataLoader(UNSWNB15Dataset(self.train_data_path), batch_size=16, shuffle=True, num_workers=12)
+
+        return data_loader
+
+    def val_dataloader(self):
+        data_loader = DataLoader(UNSWNB15Dataset(self.val_data_path), batch_size=256, shuffle=True, num_workers=12)
+
+        return data_loader
