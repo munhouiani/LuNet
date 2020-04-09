@@ -108,14 +108,19 @@ class LuNet(LightningModule):
         self.drop_out = nn.Dropout(p=0.5)
 
         if self.out_dim == 2:  # binary classification
-            out_dim = 1
-        else:
-            out_dim = self.out_dim
-        self.out = nn.Linear(
-            in_features=dummy_x.shape[1] * dummy_x.shape[2],
-            out_features=out_dim
+            self.out = nn.Sequential(
+                nn.Linear(
+                    in_features=dummy_x.shape[1] * dummy_x.shape[2],
+                    out_features=1
 
-        )
+                ),
+                nn.Sigmoid()
+            )
+        else:
+            self.out = nn.Linear(
+                in_features=dummy_x.shape[1] * dummy_x.shape[2],
+                out_features=self.out_dim
+            )
 
     def forward(self, x):
         x = self.lu_block_1(x)
@@ -154,7 +159,7 @@ class LuNet(LightningModule):
             loss = {'loss': F.cross_entropy(y_hat, y)}
 
         if (batch_idx % 50) == 0:
-            self.logger.log_metrics(loss, step=batch_idx)
+            self.logger.log_metrics(loss)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -169,7 +174,7 @@ class LuNet(LightningModule):
             loss = {'val_loss': F.cross_entropy(y_hat, y)}
 
         if (batch_idx % 50) == 0:
-            self.logger.log_metrics(loss, step=batch_idx)
+            self.logger.log_metrics(loss)
         return loss
 
     def configure_optimizers(self):
